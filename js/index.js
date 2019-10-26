@@ -154,5 +154,7 @@ document.addEventListener('keydown', (e)=>{
     }
 })
 
+EventUtil.listenTouchDirection(document, true, action);
+
 
 
