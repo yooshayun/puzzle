@@ -18,16 +18,15 @@ var EventUtil = {
     /**
      * 监听触摸的方向
      * @param target            要绑定监听的目标元素
-     * @param isPreventDefault  是否屏蔽掉触摸滑动的默认行为（例如页面的上下滚动，缩放等）
      * @param action.toT        向上滑动的监听回调（若不关心，可以不传，或传false）
      * @param action.toR     向右滑动的监听回调（若不关心，可以不传，或传false）
      * @param action.toB     向下滑动的监听回调（若不关心，可以不传，或传false）
      * @param action.toL      向左滑动的监听回调（若不关心，可以不传，或传false）
      */
     listenTouchDirection: function (target, isPreventDefault, action) {
-        this.addHandler(target, "touchstart", handleTouchEvent);
-        this.addHandler(target, "touchend", handleTouchEvent);
-        this.addHandler(target, "touchmove", handleTouchEvent);
+        this.addHandler(target, "touchstart", handleTouchEvent, { passive: false });
+        this.addHandler(target, "touchend", handleTouchEvent, { passive: false });
+        this.addHandler(target, "touchmove", handleTouchEvent, { passive: false });
         var startX;
         var startY;
         function handleTouchEvent(event) {
@@ -64,9 +63,6 @@ var EventUtil = {
 
                     break;
                 case "touchmove":
-                    //阻止默认行为
-                    if(isPreventDefault)
-                        event.preventDefault();
                     break;
             }
         }

@@ -34,6 +34,8 @@ position.forEach(item => {
 let action = {
     toL: function() {
         console.log('left');
+        //查找可移动dom
+        findWillMoveDoms();
         if(!willMoveDoms.right) {
             return;
         }
@@ -47,6 +49,8 @@ let action = {
     },
     toR: function() {
         console.log('right');
+        //查找可移动dom
+        findWillMoveDoms();
         if(!willMoveDoms.left) {
             return;
         }
@@ -62,6 +66,8 @@ let action = {
     },
     toB: function() {
         console.log('bottom');
+        //查找可移动dom
+        findWillMoveDoms();
         if(!willMoveDoms.top) {
             return;
         }
@@ -77,6 +83,8 @@ let action = {
     },
     toT: function() {
         console.log('top');
+        //查找可移动dom
+        findWillMoveDoms();
         if(!willMoveDoms.bottom) {
             return;
         }
@@ -133,8 +141,6 @@ function findWillMoveDoms() {
 
 document.addEventListener('keydown', (e)=>{
     e.stopPropagation();
-    //查找可移动dom
-    findWillMoveDoms();
     //左
     if(e.keyCode == 65) {
         action.toL();
