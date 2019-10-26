@@ -9,26 +9,37 @@ const position = [
     [1,2],
     [2,2]
 ]; 
+//初始顺序
+var orders = [0,3,2,1,4,5,7,6,8];
 
 //容器
 let content = document.querySelector('.content');
 let originPositon = {}; //记录0-8号图片位置
 
 //初始化
-position.forEach(item => {
-    let dom = document.createElement('div');
-    dom.className = `game position-${ item[0] }-${ item[1] }`;
-    dom.style.left = `${ item[0] * 100 }px`;
-    dom.style.top = `${ item[1] * 100 }px`;
-    dom.style.backgroundPosition = `-${ item[0] * 100 }px -${ item[1] * 100 }px`;
-    if(item[0] == 2 && item[1] == 2) {
-        dom.style.backgroundImage = 'none';
-    }
-    originPositon = Object.assign(originPositon, {
-        [`${ item[0] }-${ item[1] }`]: [item[0], item[1]] 
+function init() {
+    content.innerHTML = '';
+    orders.forEach((item, index) => {
+        let _position = position[item], //图片位置
+            backgroundPosition = position[index]; //背景定位位置
+        let dom = document.createElement('div');
+        dom.className = `game position-${ backgroundPosition[0] }-${ backgroundPosition[1] }`;
+        dom.style.left = `${ _position[0] * 100 }px`;
+        dom.style.top = `${ _position[1] * 100 }px`;
+        dom.style.backgroundPosition = `-${ backgroundPosition[0] * 100 }px -${ backgroundPosition[1] * 100 }px`;
+        if(backgroundPosition[0] == 2 && backgroundPosition[1] == 2) {
+            dom.style.backgroundImage = 'none';
+        }
+        //图片顺序 对应到的位置
+        originPositon = Object.assign(originPositon, {
+            [`${ backgroundPosition[0] }-${ backgroundPosition[1] }`]: [_position[0], _position[1]] 
+        })
+    //     console.log(JSON.stringify({            [`${ backgroundPosition[0] }-${ backgroundPosition[1] }`]: [_position[0], _position[1]] 
+    // }), item)
+        content.appendChild(dom);
+    
     })
-    content.appendChild(dom);
-})
+}
 
 //动作
 let action = {
@@ -136,6 +147,51 @@ function findWillMoveDoms() {
     }
     // console.log(willMoveDoms, '可移动doms')
 }
+
+//随机生成拼图
+function getPuzzle() {
+    let newPuzzleArr = randomPuzzle();
+    // console.log(newPuzzleArr);
+    while(!checkPuzzle(newPuzzleArr)) {
+        newPuzzleArr = randomPuzzle();
+    }
+    orders = [...newPuzzleArr, 8];
+
+    init();
+}
+
+//随机生成拼图数组
+function randomPuzzle() {
+    let randomArr = [], origin = [0,1,2,3,4,5,6,7];
+    while (randomArr.length < 8) {
+        let index = Math.floor(Math.random() * origin.length), 
+        num = origin[index];
+        randomArr.push(origin[index]);
+        origin.splice(index, 1);
+    }
+    return randomArr
+}
+
+//检测是否可以还原
+function checkPuzzle(arr) {
+    //计算逆序数 原数组逆序数为偶
+    let count = 0, length = arr.length;
+    for(let i = 0; i < length -1; i++) {
+        if(arr[i] > arr[i+1]) {
+            count++
+        }
+    }
+    return count % 2 == 0
+}
+
+
+
+init();
+
+document.querySelector('#game-reset').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    getPuzzle()
+})
 
 document.addEventListener('keydown', (e)=>{
     e.stopPropagation();

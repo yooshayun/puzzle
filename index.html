@@ -24,11 +24,44 @@
             border: 1px solid #fff;
             box-sizing: border-box;
         }
+        .action-box {
+            padding: 16px 0;
+            text-align: center;
+        }
+        .action-box button{
+            width: 80%;
+            border: 0;
+            border-radius: 4px;
+            height: 32px;
+            color: #fff;
+            background-color: #2d8cf0;
+            margin-bottom: 0;
+            font-weight: 400;
+            outline: none;
+            text-align: center;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            height: 32px;
+            padding: 0 15px;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: color .2s linear,background-color .2s linear,border .2s linear,box-shadow .2s linear;
+        }
     </style>
 </head>
 <body>
     <div class="content">       
     </div>
+    <div class="action-box"><button id="game-reset">刷新游戏</button></div>
     <script src="./js/event.js"></script>
     <script src="./js/index.js"></script>
 </body>
