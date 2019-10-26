@@ -136,7 +136,6 @@ document.addEventListener('keydown', (e)=>{
     //查找可移动dom
     findWillMoveDoms();
     //左
-    console.log(e.keyCode);
     if(e.keyCode == 65) {
         action.toL();
     }
