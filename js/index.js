@@ -59,7 +59,6 @@ let action = {
             blankDom = document.querySelector(`.position-2-2`);
         leftDom.style.left = `${ (originPositon[willMoveDoms.left][0] + 1) * 100 }px`;
         blankDom.style.left = `${ (originPositon['2-2'][0] - 1) * 100 }px`;
-        console.log(originPositon, willMoveDoms.left)
         originPositon[willMoveDoms.left][0]++;     
         originPositon['2-2'][0]--;     
         findWillMoveDoms();
@@ -77,7 +76,6 @@ let action = {
         blankDom.style.top = `${ (originPositon['2-2'][1] - 1) * 100 }px`;
         originPositon[willMoveDoms.top][1]++;     
         originPositon['2-2'][1]--;   
-        console.log(originPositon)  
         findWillMoveDoms();
 
     },
@@ -136,7 +134,7 @@ function findWillMoveDoms() {
             }
         }
     }
-    console.log(willMoveDoms, '可移动doms')
+    // console.log(willMoveDoms, '可移动doms')
 }
 
 document.addEventListener('keydown', (e)=>{
