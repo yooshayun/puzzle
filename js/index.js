@@ -1,16 +1,11 @@
 const position = [
-    [0,0],
-    [1,0],
-    [2,0],
-    [0,1],
-    [1,1],
-    [2,1],
-    [0,2],
-    [1,2],
-    [2,2]
+    [0,0], [1,0], [2,0],
+    [0,1], [1,1], [2,1],
+    [0,2], [1,2], [2,2]
 ]; 
 //初始顺序
 var orders = [0,1,2,3,4,5,6,7,8];
+var currentOrders = [0,1,2,3,4,5,6,7,8];
 
 //容器
 let content = document.querySelector('.content');
@@ -19,7 +14,7 @@ let originPositon = {}; //记录0-8号图片位置
 //初始化
 function init() {
     content.innerHTML = '';
-    orders.forEach((item, index) => {
+    currentOrders.forEach((item, index) => {
         let _position = position[item], //图片位置
             backgroundPosition = position[index]; //背景定位位置
         let dom = document.createElement('div');
@@ -34,10 +29,7 @@ function init() {
         originPositon = Object.assign(originPositon, {
             [`${ backgroundPosition[0] }-${ backgroundPosition[1] }`]: [_position[0], _position[1]] 
         })
-    //     console.log(JSON.stringify({            [`${ backgroundPosition[0] }-${ backgroundPosition[1] }`]: [_position[0], _position[1]] 
-    // }), item)
         content.appendChild(dom);
-    
     })
 }
 
@@ -56,7 +48,7 @@ let action = {
         blankDom.style.left = `${ (originPositon['2-2'][0] + 1) * 100 }px`;
         originPositon[willMoveDoms.right][0]--;     
         originPositon['2-2'][0]++;     
-        findWillMoveDoms();
+        isGameOve()
     },
     toR: function() {
         console.log('right');
@@ -65,14 +57,13 @@ let action = {
         if(!willMoveDoms.left) {
             return;
         }
-
         let leftDom = document.querySelector(`.position-${willMoveDoms.left}`),
             blankDom = document.querySelector(`.position-2-2`);
         leftDom.style.left = `${ (originPositon[willMoveDoms.left][0] + 1) * 100 }px`;
         blankDom.style.left = `${ (originPositon['2-2'][0] - 1) * 100 }px`;
         originPositon[willMoveDoms.left][0]++;     
-        originPositon['2-2'][0]--;     
-        findWillMoveDoms();
+        originPositon['2-2'][0]--;  
+        isGameOve()
     },
     toB: function() {
         console.log('bottom');
@@ -87,8 +78,7 @@ let action = {
         blankDom.style.top = `${ (originPositon['2-2'][1] - 1) * 100 }px`;
         originPositon[willMoveDoms.top][1]++;     
         originPositon['2-2'][1]--;   
-        findWillMoveDoms();
-
+        isGameOve()
     },
     toT: function() {
         console.log('top');
@@ -102,9 +92,8 @@ let action = {
         bottomDom.style.top = `${ (originPositon[willMoveDoms.bottom][1] - 1) * 100 }px`;
         blankDom.style.top = `${ (originPositon['2-2'][1] + 1) * 100 }px`;
         originPositon[willMoveDoms.bottom][1]--;     
-        originPositon['2-2'][1]++;     
-        findWillMoveDoms();
-
+        originPositon['2-2'][1]++;
+        isGameOve()
     }
 }
 
@@ -148,6 +137,24 @@ function findWillMoveDoms() {
     // console.log(willMoveDoms, '可移动doms')
 }
 
+//判断是否结束游戏
+function isGameOve() {
+    // console.log(originPositon);
+    let bool = false, keys = Object.keys(originPositon).sort();
+    bool = keys.every(one => one === originPositon[one].join('-'));
+    currentOrders = [];
+    keys.forEach((item) => {
+        let count = originPositon[item][0] * 3 + originPositon[item][1]
+        currentOrders.push(count)
+    })
+    console.log('current-order:', currentOrders.join(','));
+    if(bool) {
+        setTimeout(()=>{
+            alert('恭喜成功！！');
+        }, 200)
+    }
+}
+
 //随机生成拼图
 function getPuzzle() {
     let newPuzzleArr = randomPuzzle();
@@ -156,6 +163,7 @@ function getPuzzle() {
         newPuzzleArr = randomPuzzle();
     }
     orders = [...newPuzzleArr, 8];
+    currentOrders = orders;
 
     init();
 }
@@ -184,15 +192,16 @@ function checkPuzzle(arr) {
     return count % 2 == 0
 }
 
-
-
+//初始化拼图
 init();
 
+//刷新拼图
 document.querySelector('#game-reset').addEventListener('click', (e)=>{
     e.stopPropagation();
     getPuzzle()
 })
 
+//事件
 document.addEventListener('keydown', (e)=>{
     e.stopPropagation();
     //左
@@ -213,7 +222,7 @@ document.addEventListener('keydown', (e)=>{
     }
 })
 
-EventUtil.listenTouchDirection(document, true, action);
+EventUtil.listenTouchDirection(document.querySelector('.content'), action);
 
 
 

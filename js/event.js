@@ -23,7 +23,7 @@ var EventUtil = {
      * @param action.toB     向下滑动的监听回调（若不关心，可以不传，或传false）
      * @param action.toL      向左滑动的监听回调（若不关心，可以不传，或传false）
      */
-    listenTouchDirection: function (target, isPreventDefault, action) {
+    listenTouchDirection: function (target, action) {
         this.addHandler(target, "touchstart", handleTouchEvent, { passive: false });
         this.addHandler(target, "touchend", handleTouchEvent, { passive: false });
         this.addHandler(target, "touchmove", handleTouchEvent, { passive: false });
