@@ -18,6 +18,7 @@ function init() {
         let _position = position[item], //图片位置
             backgroundPosition = position[index]; //背景定位位置
         let dom = document.createElement('div');
+        dom.innerText = index;
         dom.className = `game position-${ backgroundPosition[0] }-${ backgroundPosition[1] }`;
         dom.style.left = `${ _position[0] * 100 }px`;
         dom.style.top = `${ _position[1] * 100 }px`;
@@ -185,8 +186,10 @@ function checkPuzzle(arr) {
     //计算逆序数 原数组逆序数为偶
     let count = 0, length = arr.length;
     for(let i = 0; i < length -1; i++) {
-        if(arr[i] > arr[i+1]) {
-            count++
+        for(let j = i + 1; j < length; j++) {
+            if(arr[i] > arr[j]) {
+                count++
+            }
         }
     }
     return count % 2 == 0
