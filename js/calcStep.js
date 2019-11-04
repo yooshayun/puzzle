@@ -12,7 +12,10 @@
  *   6,7,8
  * ]
  */
-autoCalcSteps([0,1,2,3,5,7,6,4,8])
+document.querySelector("#game-help").addEventListener('click', (e)=>{
+   e.stopPropagation();
+   autoCalcSteps(deepCopy(currentOrders));
+})
 function autoCalcSteps(orders) {
    //搜索节点集合
    let opens = [],
@@ -29,7 +32,7 @@ function autoCalcSteps(orders) {
 
    //搜索
    while (opens.length !== 0) {
-      console.log(opens.length);
+      // console.log(opens.length);
       //判断当前节点的可能产生的节点
       let currentNode = opens.shift();
       let childOrders = getNextOrders(currentNode.order);
@@ -61,22 +64,27 @@ function autoCalcSteps(orders) {
                }
             }
          }
-         console.log(opens, 'opens');
+         // console.log(opens, 'opens');
       })
       if(currentNode.order.join('') == '012345678') {
          console.log('寻路成功！');
          opens = [];
          console.log(close);
          let paths = getPath(close[close.length - 1])
-         console.log(paths)
-         console.log(paths.map(one => {
-            return one.order.join(',')
-         }));
+         // console.log(paths)
+         // console.log(paths.map(one => {
+         //    return one.order.join(',')
+         // }));
+         let pathNames = [];
          for(let i = paths.length - 1; i > 0; i--) {
-            isChange(paths[i].order, paths[i-1].order);
+            pathNames.push(isChange(paths[i].order, paths[i-1].order));
          }
+         getPathNames(pathNames);
       } else {
          step++;
+      }
+      if(opens.length == 0) {
+         console.log(close)
       }
    }
 }
@@ -90,6 +98,11 @@ function getPath(node) {
    } else {
       return paths
    }
+}
+
+//拼接路径指引
+function getPathNames(list) {
+   document.querySelector('.help-word').innerHTML = list.join('->');
 }
 
 //对比两个数组的变幻关系 current --> next  1向上2向右3向下4向左
@@ -106,7 +119,7 @@ function isChange(current, next) {
    //对比两个数组
    let currArr = current;
    let nextArr = next;
-   console.log(current.join(','), next.join(','))
+   // console.log(current.join(','), next.join(','))
    let differents = [];  //记录两个8的位置curr的8==>next的8是动作方向
    for(let i = 0; i < currArr.length; i++) {
       if(currArr[i] !== nextArr[i]) {
@@ -142,17 +155,21 @@ function isChange(current, next) {
    if(direction.x == 0) {
       if(direction.y == -1) {
          console.log('向下')
+         return '下'
       }
       if(direction.y == 1) {
          console.log('向上')
+         return '上'
       }
    }
    if(direction.y == 0) {
       if(direction.x == -1) {
          console.log('向右')
+         return '右'
       }
       if(direction.x == 1) {
          console.log('向左')
+         return '左'
       }
    }
 }
@@ -181,7 +198,7 @@ function getNextOrders(curr) {
          childNodes.push(changePosition(curr, blockOrder, index));
       }
    })
-   console.log(JSON.stringify(childNodes));
+   // console.log(JSON.stringify(childNodes));
    return childNodes
 }
 

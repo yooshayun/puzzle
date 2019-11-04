@@ -4,21 +4,20 @@ const position = [
     [0,2], [1,2], [2,2]
 ]; 
 //初始顺序
-var orders = [0,1,2,3,4,5,6,7,8];
 var currentOrders = [0,1,2,3,4,5,6,7,8];
 
 //容器
 let content = document.querySelector('.content');
 let originPositon = {}; //记录0-8号图片位置
 
-//初始化
+//初始化  
 function init() {
     content.innerHTML = '';
     currentOrders.forEach((item, index) => {
-        let _position = position[item], //图片位置
-            backgroundPosition = position[index]; //背景定位位置
+        let _position = position[index], //图片位置
+            backgroundPosition = position[item]; //背景定位位置 区分0-8号图片
         let dom = document.createElement('div');
-        dom.innerText = index;
+        dom.innerText = item;
         dom.className = `game position-${ backgroundPosition[0] }-${ backgroundPosition[1] }`;
         dom.style.left = `${ _position[0] * 100 }px`;
         dom.style.top = `${ _position[1] * 100 }px`;
@@ -140,7 +139,7 @@ function findWillMoveDoms() {
 
 //判断是否结束游戏
 function isGameOve() {
-    // console.log(originPositon);
+    console.log(originPositon);
     let bool = false, keys = Object.keys(originPositon).sort();
     bool = keys.every(one => one === originPositon[one].join('-'));
     currentOrders = [];
@@ -163,7 +162,7 @@ function getPuzzle() {
     while(!checkPuzzle(newPuzzleArr)) {
         newPuzzleArr = randomPuzzle();
     }
-    orders = [...newPuzzleArr, 8];
+    let orders = [...newPuzzleArr, 8];
     currentOrders = orders;
 
     init();
@@ -201,6 +200,7 @@ init();
 //刷新拼图
 document.querySelector('#game-reset').addEventListener('click', (e)=>{
     e.stopPropagation();
+    document.querySelector('.help-word').innerHTML = '';
     getPuzzle()
 })
 
