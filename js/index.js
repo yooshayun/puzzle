@@ -3,8 +3,10 @@ const position = [
     [0,1], [1,1], [2,1],
     [0,2], [1,2], [2,2]
 ]; 
-//初始顺序
-var currentOrders = [0,1,2,3,4,5,6,7,8];
+//初始顺序1,5,2,0,4,6,3,7,8  
+//0,1,2,5,6,7,3,4,8 
+//0,1,2,3,5,7,6,4,8
+var currentOrders = [0,1,2,5,6,7,3,4,8];
 
 //容器
 let content = document.querySelector('.content');
@@ -18,7 +20,7 @@ function init() {
             backgroundPosition = position[item]; //背景定位位置 区分0-8号图片
         let dom = document.createElement('div');
         dom.innerText = item;
-        dom.className = `game position-${ backgroundPosition[0] }-${ backgroundPosition[1] }`;
+        dom.className = `game position-${ item }`;
         dom.style.left = `${ _position[0] * 100 }px`;
         dom.style.top = `${ _position[1] * 100 }px`;
         dom.style.backgroundPosition = `-${ backgroundPosition[0] * 100 }px -${ backgroundPosition[1] * 100 }px`;
@@ -27,7 +29,7 @@ function init() {
         }
         //图片顺序 对应到的位置
         originPositon = Object.assign(originPositon, {
-            [`${ backgroundPosition[0] }-${ backgroundPosition[1] }`]: [_position[0], _position[1]] 
+            [`${ item }`]: [_position[0], _position[1]] 
         })
         content.appendChild(dom);
     })
@@ -43,11 +45,11 @@ let action = {
             return;
         }
         let rightDom = document.querySelector(`.position-${willMoveDoms.right}`),
-            blankDom = document.querySelector(`.position-2-2`);
+            blankDom = document.querySelector(`.position-8`);
         rightDom.style.left = `${ (originPositon[willMoveDoms.right][0] - 1) * 100 }px`;
-        blankDom.style.left = `${ (originPositon['2-2'][0] + 1) * 100 }px`;
+        blankDom.style.left = `${ (originPositon['8'][0] + 1) * 100 }px`;
         originPositon[willMoveDoms.right][0]--;     
-        originPositon['2-2'][0]++;     
+        originPositon['8'][0]++;     
         isGameOve()
     },
     toR: function() {
@@ -58,11 +60,11 @@ let action = {
             return;
         }
         let leftDom = document.querySelector(`.position-${willMoveDoms.left}`),
-            blankDom = document.querySelector(`.position-2-2`);
+            blankDom = document.querySelector(`.position-8`);
         leftDom.style.left = `${ (originPositon[willMoveDoms.left][0] + 1) * 100 }px`;
-        blankDom.style.left = `${ (originPositon['2-2'][0] - 1) * 100 }px`;
+        blankDom.style.left = `${ (originPositon['8'][0] - 1) * 100 }px`;
         originPositon[willMoveDoms.left][0]++;     
-        originPositon['2-2'][0]--;  
+        originPositon['8'][0]--;  
         isGameOve()
     },
     toB: function() {
@@ -73,11 +75,11 @@ let action = {
             return;
         }
         let topDom = document.querySelector(`.position-${willMoveDoms.top}`),
-            blankDom = document.querySelector(`.position-2-2`);
+            blankDom = document.querySelector(`.position-8`);
         topDom.style.top = `${ (originPositon[willMoveDoms.top][1] + 1) * 100 }px`;
-        blankDom.style.top = `${ (originPositon['2-2'][1] - 1) * 100 }px`;
+        blankDom.style.top = `${ (originPositon['8'][1] - 1) * 100 }px`;
         originPositon[willMoveDoms.top][1]++;     
-        originPositon['2-2'][1]--;   
+        originPositon['8'][1]--;   
         isGameOve()
     },
     toT: function() {
@@ -88,11 +90,11 @@ let action = {
             return;
         }
         let bottomDom = document.querySelector(`.position-${willMoveDoms.bottom}`),
-            blankDom = document.querySelector(`.position-2-2`);
+            blankDom = document.querySelector(`.position-8`);
         bottomDom.style.top = `${ (originPositon[willMoveDoms.bottom][1] - 1) * 100 }px`;
-        blankDom.style.top = `${ (originPositon['2-2'][1] + 1) * 100 }px`;
+        blankDom.style.top = `${ (originPositon['8'][1] + 1) * 100 }px`;
         originPositon[willMoveDoms.bottom][1]--;     
-        originPositon['2-2'][1]++;
+        originPositon['8'][1]++;
         isGameOve()
     }
 }
@@ -100,9 +102,9 @@ let action = {
 //查询可移动doms
 let willMoveDoms = {};
 function findWillMoveDoms() {
-    let blankDomPos = originPositon['2-2'];
+    let blankDomPos = originPositon['8'];
     willMoveDoms = {};
-    willMoveDoms.blank = '2-2';
+    willMoveDoms.blank = '8';
     for(let i in originPositon) {
         let or = originPositon[i];
         if(or[0] == blankDomPos[0] && or[1] + 1 == blankDomPos[1]) {
@@ -139,14 +141,20 @@ function findWillMoveDoms() {
 
 //判断是否结束游戏
 function isGameOve() {
-    console.log(originPositon);
+    // console.log(JSON.stringify(originPositon));
     let bool = false, keys = Object.keys(originPositon).sort();
-    bool = keys.every(one => one === originPositon[one].join('-'));
+    bool = keys.every(one => one === originPositon[one]);
     currentOrders = [];
-    keys.forEach((item) => {
-        let count = originPositon[item][0] * 3 + originPositon[item][1]
-        currentOrders.push(count)
-    })
+    for(let i = 0; i < 3; i++) {
+        for(let j = 0; j < 3; j++) {
+            for(let key in originPositon) {
+                let point = originPositon[key];
+                if(point[0] == j && point[1] == i) {
+                    currentOrders.push(key);
+                }
+            }
+        }
+    }
     console.log('current-order:', currentOrders.join(','));
     if(bool) {
         setTimeout(()=>{
@@ -172,8 +180,7 @@ function getPuzzle() {
 function randomPuzzle() {
     let randomArr = [], origin = [0,1,2,3,4,5,6,7];
     while (randomArr.length < 8) {
-        let index = Math.floor(Math.random() * origin.length), 
-        num = origin[index];
+        let index = Math.floor(Math.random() * origin.length);
         randomArr.push(origin[index]);
         origin.splice(index, 1);
     }

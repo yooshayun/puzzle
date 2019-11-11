@@ -17,16 +17,18 @@ document.querySelector("#game-help").addEventListener('click', (e)=>{
    autoCalcSteps(deepCopy(currentOrders));
 })
 function autoCalcSteps(orders) {
+   console.log(orders);
    //搜索节点集合
    let opens = [],
-      close = [], 
-      step = 0;   //搜索步数
+      close = []; 
+      // step = 0;   //搜索步数
 
    //估值函数  
-   let nodeValue = getDistanceTotal(orders) + step;
+   let nodeValue = getDistanceTotal(orders);
    let curr = deepCopy(orders);
    opens.push({
       v: nodeValue,
+      step: 0,
       order: curr
    })
 
@@ -35,58 +37,85 @@ function autoCalcSteps(orders) {
       // console.log(opens.length);
       //判断当前节点的可能产生的节点
       let currentNode = opens.shift();
-      let childOrders = getNextOrders(currentNode.order);
+      // console.log(JSON.stringify(currentNode.order));
       //
       close.push(currentNode);
 
-      if(childOrders.length == 0) {
-         alert('无解');
-         opens = [];
-      }
-      childOrders.forEach(item => {
-         //排除掉已经出现的节点，不可以走回头路
-         if(!close.some(one => isSameOrder(item, one.order))) {
-            let node = {
-               v: getDistanceTotal(item) + step,
-               order: item,
-               parent: currentNode          
-            };
-            let length = opens.length;
-            //将新的节点按估值大小插入opens列表里面
-            if(length == 0) {
-               opens.push(node);
-            } else {
-               for(let i = 0; i < length; i++) {
-                  if(opens[i].v > node.v) {
-                     opens.splice(i, 0, node);
-                     break
-                  }
-               }
-            }
-         }
-         // console.log(opens, 'opens');
-      })
+      //判断是否到达最终状态
       if(currentNode.order.join('') == '012345678') {
          console.log('寻路成功！');
-         opens = [];
-         console.log(close);
+         // console.log(close);
          let paths = getPath(close[close.length - 1])
-         // console.log(paths)
-         // console.log(paths.map(one => {
-         //    return one.order.join(',')
-         // }));
          let pathNames = [];
          for(let i = paths.length - 1; i > 0; i--) {
             pathNames.push(isChange(paths[i].order, paths[i-1].order));
          }
          getPathNames(pathNames);
-      } else {
-         step++;
+         break;
+      } 
+      
+      //扩展子节点
+      let childOrders = getNextOrders(currentNode.order);
+      if(childOrders.length == 0) {
+         console.log('无解');
+         // opens = [];
       }
+      // console.log(childOrders, 'childOrders');
+      childOrders.forEach(item => {
+         //子节点筛选 路径出现重复节点的去掉
+         let closeIndex = indexOfArray(close, item);
+         let openIndex = indexOfArray(opens, item);
+         // console.log(closeIndex, openIndex, 'index');
+
+         if(closeIndex == -1) {
+            let node = {
+               v: getDistanceTotal(item) + currentNode.step + 1,
+               step: currentNode.step + 1,
+               order: item,
+               parent: currentNode          
+            }
+            //将新的节点按估值大小插入opens列表里面
+            //如果opens中存在，则对比两个的步数和估值，
+            //如果步数不一样，取步数小的，如果步数一样，取估值小地
+            if(openIndex == -1) {
+               opens.push(node)
+            } else {
+               let opnesValue = opens[openIndex];
+               if(opnesValue.step > node.step 
+                  || (opnesValue.step == node.step && opnesValue.v >= node.v)) {
+                  opens.splice(openIndex, 1, node);
+               }
+            }
+         }
+      })
+      opens = sortOfArray(opens);
+      // console.log(JSON.stringify(opens), 'opens');
+      
       if(opens.length == 0) {
-         console.log(close)
+         console.log(close.length)
       }
    }
+}
+
+//查询数组中是否存在
+function indexOfArray(arr, one) {
+   let index = -1, length = arr.length;
+   for(let i = 0; i < length; i++) {
+      // console.log(arr[i].order, one)
+      if(isSameOrder(arr[i].order, one)) {
+         index = i;
+      }
+   }
+   return index
+}
+
+//数组排序从小到大
+function sortOfArray(arr) {
+   let newArray = deepCopy(arr);
+   newArray.sort((a,b) => {
+      return a.v - b.v
+   })
+   return newArray
 }
 
 //获取路径
@@ -179,26 +208,26 @@ function isSameOrder(order0, order1) {
    return order0.join('') == order1.join('')
 }
 
-//获取输入节点，移动一步之后可能产生的节点
+//扩展目标函数的子节点
 function getNextOrders(curr) {
-   let block, blockOrder; //输入节点空白位置
+   let blank, blankOrder; //输入节点空白位置
    for(let i = 0; i < curr.length; i++) {
       if(curr[i] === 8) {
-         block = getPosition(i);
-         blockOrder = i;
+         blank = getPosition(i);
+         blankOrder = i;
          break;
       }
    }
-   // console.log(block, curr);
+   // console.log(blank, blankOrder);
    //查询与当前空白节点只有1步的节点
    let childNodes = [];
    curr.forEach((item, index) => {
       let aroundNode = getPosition(index);
-      if(Math.abs(aroundNode.x - block.x) + Math.abs(aroundNode.y - block.y) == 1) {
-         childNodes.push(changePosition(curr, blockOrder, index));
+      if(Math.abs(aroundNode.x - blank.x) + Math.abs(aroundNode.y - blank.y) == 1) {
+         childNodes.push(changePosition(curr, blankOrder, index));
       }
    })
-   // console.log(JSON.stringify(childNodes));
+   // console.log(JSON.stringify(curr), JSON.stringify(childNodes));
    return childNodes
 }
 
@@ -219,7 +248,7 @@ function getPosition(number) {
    }
 }
 
-//坐标位置拼图距离应还原位置的步数
+//坐标位置拼图距离应还原位置的步数 
 function getDistance(origin, point){
    let op = getPosition(origin), //该拼图还原位置
       cp = getPosition(point);  //该拼图当前位置
@@ -230,7 +259,9 @@ function getDistance(origin, point){
 function getDistanceTotal(orders) {
    let total = 0;
    orders.forEach((item, index)=> {
-      total += getDistance(item, index);
+      if(item !== 8) {
+         total += getDistance(item, index);
+      }
    })
    return total
 }
