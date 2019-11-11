@@ -10,6 +10,7 @@
             width: 300px;
             height: 300px;
             margin: 50px auto;
+            background-color: #fff;
             box-shadow: 0 0 5px rgba(0,0,0,0.1);
             position: relative;
         }
@@ -76,6 +77,9 @@
         let dom = document.querySelector('.content');
         console.log(dom, dom.offsetWidth);
         let puzzle = new Puzzle(dom, 3);
+        document.querySelector('#game-reset').addEventListener('click', ()=>{
+            puzzle.random();
+        })
     </script>
 </body>
 </html>

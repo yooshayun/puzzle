@@ -8,6 +8,7 @@ class Puzzle {
      * @param config
      * @param {size}  ·N*N的拼图 
      * @param {image} 拼图所用图片
+     * @param {animate} 动画速度
      * 
      */
     constructor(contain, config) {
@@ -18,13 +19,20 @@ class Puzzle {
         this.contain = contain;
         this.size = config.size || 3;
         this.image = config.image || 'http://image.kolocdn.com/FmeJFr84wxiozGqT2B6QR0PkwjFh';
+        this.animate = config.animate || 0.5;
         //坐标系和初始位置（也是最终还原位置）
         this.xStep = this.contain.offsetWidth / this.size;   //每个格子分配宽度
         this.yStep = this.contain.offsetHeight / this.size;  //每个格子分配高度
         this.position = [];
         this.orders = [];
+
         //位置和数值的映射关系
         this.originPositon = {};
+        //记录当前顺序
+        this.currentOrders = [];
+
+        //记录移动历史
+        this.historyOrders = [];
 
         this.init();
     }
@@ -48,12 +56,13 @@ class Puzzle {
                 this.originPositon = Object.assign(this.originPositon, {
                     [`${ i * this.size + j }`]: [j, i]
                 })
+                this.currentOrders.push(i * this.size + j);
             }
         }
     }
 
-    //根据位置顺序渲染拼图
-    render() {
+    //初始化渲染拼图
+    initRender() {
         this.contain.innerHTML = '';
         this.orders.forEach((item)=>{
             let _position = this.position[item];
@@ -62,6 +71,7 @@ class Puzzle {
             dom.className = `puzzle-game position-${ item }`;
             dom.style.left = `${ _position[0] * this.xStep }px`;
             dom.style.top = `${ _position[1] * this.yStep }px`;
+            dom.style.transition = `left ${this.animate}s, top ${this.animate}s`;
             dom.style.backgroundPosition = `-${ _position[0] * this.xStep }px -${ _position[1] * this.yStep }px`;
             if(_position[0] == 2 && _position[1] == 2) {
                 dom.style.backgroundImage = 'none';
@@ -70,10 +80,66 @@ class Puzzle {
         })
     }
 
+    //改变拼图位置
+    render() {
+        //当前排序和坐标系重新建立映射关系
+        this.currentOrders.forEach((item, index) => {
+            let _position = this.position[index];
+            let dom = document.querySelector('.position-' + item);
+            dom.style.left = `${ _position[0] * this.xStep }px`;
+            dom.style.top = `${ _position[1] * this.yStep }px`;
+            this.originPositon = Object.assign(this.originPositon, {
+                [`${ item }`]: _position
+            })
+        })
+    }
+
     //游戏初始化
     init() {
         this.positionInit();
+        this.initRender();
+
+        //添加滑动事件  //操作拼图滑动
+
+    }
+    
+    //生成可还原拼图排列
+    random() {
+        let newPuzzleArr = this.randomPuzzle();
+        // console.log(newPuzzleArr);
+        while(!this.checkPuzzle(newPuzzleArr)) {
+            newPuzzleArr = this.randomPuzzle();
+        }
+        let orders = [...newPuzzleArr, this.size * this.size - 1];
+
+        this.currentOrders = orders;
+
+        this.historyOrders = [orders];
         this.render();
+    }
+
+    //随机生成拼图排列 最后一个位置固定，不参与随机
+    randomPuzzle() {
+        let randomArr = [],
+            origin = [], 
+            length = this.size * this.size - 1;
+        for(let i = 0; i < length; i++) {
+            origin.push(i);
+        }
+        while (randomArr.length < length) {
+            let index = Math.floor(Math.random() * origin.length);
+            randomArr.push(origin[index]);
+            origin.splice(index, 1);
+        }
+        return randomArr
+    }
+
+    //获取index对应的坐标
+    getPosition(index) {
+        return {
+            x: this.position[index][0],
+            y: this.position[index][1]
+        }
     }
 
     //深度复制
@@ -104,14 +170,17 @@ class Puzzle {
      */
     checkPuzzle(orders) {
         //计算逆序数
-        let count = 0, length = arr.length;
+        let count = 0, length = orders.length;
         for(let i = 0; i < length -1; i++) {
             for(let j = i + 1; j < length; j++) {
-                if(arr[i] > arr[j]) {
+                if(orders[i] > orders[j]) {
                     count++
                 }
             }
         }
         return count % 2 == 0
     }
+
+    //事件绑定器
+    
 }
