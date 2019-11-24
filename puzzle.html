@@ -15,14 +15,10 @@
             position: relative;
         }
         .content .puzzle-game {
-            width: 100px;
-            height: 100px;
-            line-height: 100px;
             text-align: center;
             font-size: 18px;
             position: absolute;
             /* float: left; */
-            background-color: #fff;
             background-image: url('./image/5.png');
             background-size: 600px;
             border: 1px solid #fff;
@@ -75,10 +71,14 @@
     <script src="./js/puzzle.js"></script>
     <script>
         let dom = document.querySelector('.content');
-        console.log(dom, dom.offsetWidth);
-        let puzzle = new Puzzle(dom, 3);
+        let puzzle = new Puzzle(dom, {
+            size: 3
+        });
         document.querySelector('#game-reset').addEventListener('click', ()=>{
             puzzle.random();
+        })
+        document.querySelector('#game-help').addEventListener('click', ()=>{
+            puzzle.autoCalcPuzzle();
         })
     </script>
 </body>
