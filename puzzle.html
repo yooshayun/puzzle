@@ -72,12 +72,13 @@
     <script>
         let dom = document.querySelector('.content');
         let puzzle = new Puzzle(dom, {
-            size: 3
+            size: 6
         });
         document.querySelector('#game-reset').addEventListener('click', ()=>{
             puzzle.random();
         })
         document.querySelector('#game-help').addEventListener('click', ()=>{
+            //['4', '1', '7', '6', '0', '2', '3', '5', '8']
             puzzle.autoCalcPuzzle();
         })
     </script>

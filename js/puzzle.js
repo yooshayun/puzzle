@@ -370,7 +370,7 @@ class Puzzle {
                 total += this.getDistance(itemIndex, index);
             }
         })
-        return total
+        return total * this.size * this.size
     }
 
     //坐标位置拼图距离应还原位置的步数
