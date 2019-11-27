@@ -305,7 +305,7 @@ class Puzzle {
 
         //a*搜索
         while (opens.size !== 0) {
-            console.log(opens.size, closeMap.size);
+            // console.log(opens.size, closeMap.size);
             //获取opens中估值最小的节点
             let minKey = this.minOfArray(opens);
             let currentNode = opens.get(minKey);
@@ -322,6 +322,8 @@ class Puzzle {
                     pathsNames.push(this.isChange(paths[i].order, paths[i-1].order));
                 }
                 console.log(pathsNames);
+                opens.clear();
+                closeMap.clear();
                 break;
             }
 
