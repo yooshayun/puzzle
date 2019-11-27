@@ -291,27 +291,30 @@ class Puzzle {
      */
     autoCalcPuzzle(order) {
         let orders = order || this.currentOrders;
-        let opens = [];
+        let opens = new Map();
         let closeMap = new Map();
 
         //估值函数
         let curr = orders.join('');
         let nodeValue = this.getDistanceTotal(curr);
-        opens.push({
+        opens.set(curr, {
             v: nodeValue,
             step: 0,
             order: curr
         })
 
         //a*搜索
-        while (opens.length !== 0) {
+        while (opens.size !== 0) {
+            console.log(opens.size, closeMap.size);
             //获取opens中估值最小的节点
-            let currentNode = opens.splice(this.minOfArray(opens), 1)[0];
+            let minKey = this.minOfArray(opens);
+            let currentNode = opens.get(minKey);
+            opens.delete(minKey);
             // console.log(currentNode, opens);
-            closeMap.set(currentNode.order, currentNode);
+            closeMap.set(minKey, currentNode);
 
             //判断是否到达最终状态
-            if(currentNode.order == this.orders.join('')) {
+            if(minKey == this.orders.join('')) {
                 console.log('寻路成功！！！！', currentNode);
                 let paths = this.getPath(currentNode, closeMap);
                 let pathsNames = [];
@@ -323,13 +326,10 @@ class Puzzle {
             }
 
             //未到达最终状态，则继续扩展子节点
-            let childNodes = this.getNextOrders(currentNode.order);
+            let childNodes = this.getNextOrders(minKey);
             // console.log(childNodes);
             childNodes.forEach(item => {
                 //子节点筛选 路径如果扩展过则去掉
-                let openIndex = this.indexOfArray(opens, item);
-                // console.log(openIndex);
-
                 if(!closeMap.has(item)) {
                     let node = {
                         v: this.getDistanceTotal(item) + currentNode.step + 1,
@@ -341,18 +341,18 @@ class Puzzle {
                     //将新的节点按估值大小插入opens列表里面
                     //如果opens中存在，则对比两个的步数和估值，
                     //如果步数不一样，取步数小的，如果步数一样，取估值小地
-                    if(openIndex == -1) {
-                        opens.push(node)
+                    if(!opens.has(item)) {
+                        opens.set(item, node)
                     } else {
-                        let opnesValue = opens[openIndex];
+                        let opnesValue = opens.get(item);
                         if(opnesValue.v > node.v) {
-                            opens.splice(openIndex, 1, node);
+                            opens.set(item, node);
                         }
                     }
                 }
             })
 
-            if(opens.length == 0) {
+            if(opens.size == 0) {
                 console.log('寻路失败')
             }
         }
@@ -378,18 +378,21 @@ class Puzzle {
         return Math.abs(op.x - cp.x) + Math.abs(op.y - cp.y)
     }
     
-    //查询数组中最小值
+    //查询Map数组中最小值
     minOfArray(arr) {
-        let index = 0;
-        let length = arr.length;
-        let min = arr[0];
-        for(let i = 0; i < length; i++) {
-            if(arr[i].v < min.v) {
-                index = i;
-                min = arr[i];
+        let minKey = null;
+        let min = null;
+        arr.forEach((obj, key) => {
+            if(!min) {
+                min = obj;
+                minKey = key;
             }
-        }
-        return index
+            if(obj.v < min.v) {
+                min = obj;
+                minKey = key;
+            }
+        })
+        return minKey
     }
 
     //查询数组中是否存在
