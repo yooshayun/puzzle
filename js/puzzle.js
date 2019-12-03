@@ -360,7 +360,7 @@ class Puzzle {
         }
     }
 
-    //状态距离还原状态位置 //空白方块不计算位置距离
+    //状态距离还原状态位置 //空白方块不计算位置距离//曼哈顿距离
     getDistanceTotal(order) {
         let orders = order.split('');
         let total = 0;
@@ -370,7 +370,7 @@ class Puzzle {
                 total += this.getDistance(itemIndex, index);
             }
         })
-        return total * this.size * this.size
+        return total * total * this.size
     }
 
     //坐标位置拼图距离应还原位置的步数

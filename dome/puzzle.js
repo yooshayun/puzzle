@@ -360,17 +360,26 @@ class Puzzle {
         }
     }
 
-    //节点价值
+    //节点价值 //计算逆序数个数，逆序数个数为0到达终点 //效果不如曼哈顿距离
     getDistanceTotal(order) {
         let orders = order.split('');
+        let curr = [];
         let total = 0;
+        //去掉空白单元格
         orders.forEach((item, index)=> {
-            let itemIndex = this.orders.indexOf(item);
             if(item !== this.blank) {
-                total += this.getDistance(itemIndex, index);
+                curr.push(item);
             }
         })
-        return total * this.size * this.size
+        let length = curr.length;
+        for(let i = 0; i < length; i++) {
+            for(let j = i + 1; j < length; j++) {
+                if(curr[i] > curr[j]) {
+                    total++
+                }
+            }
+        }
+        return total * total * this.size
     }
 
     //坐标位置拼图距离应还原位置的步数
